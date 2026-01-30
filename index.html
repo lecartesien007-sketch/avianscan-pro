@@ -8,6 +8,7 @@
     <style>
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
         body { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); min-height: 100vh; }
+        #loading { display: none; }
     </style>
 </head>
 <body class="p-4 text-slate-800">
@@ -15,51 +16,78 @@
     <div class="max-w-md mx-auto mb-6 flex justify-between items-center text-white">
         <div>
             <h1 class="text-2xl font-bold">AvianScan Pro 🐔</h1>
-            <p class="text-blue-400 text-sm">Mode Expert Connecté</p>
-        </div>
-        <div class="text-right">
-            <span class="bg-green-500 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Santé: OK</span>
+            <p id="status" class="text-blue-400 text-sm">Prêt pour analyse</p>
         </div>
     </div>
 
     <div class="max-w-md mx-auto glass rounded-3xl p-6 shadow-2xl mb-6">
-        <h2 class="text-lg font-semibold mb-4 border-b pb-2 text-slate-500">Actions Rapides</h2>
+        <h2 class="text-lg font-semibold mb-4 border-b pb-2 text-slate-500">Scanner de Terrain</h2>
         
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="processImage(event)">
+
         <div class="grid grid-cols-1 gap-4">
-            <button onclick="handleScan('santé')" class="flex items-center justify-between bg-red-50 p-4 rounded-2xl border-2 border-red-100 active:scale-95 transition-all">
+            <button onclick="triggerCamera('santé')" class="flex items-center justify-between bg-red-50 p-5 rounded-2xl border-2 border-red-100 active:scale-95 transition-all">
                 <div class="flex items-center">
-                    <div class="bg-red-500 p-3 rounded-xl mr-4 shadow-lg">📸</div>
+                    <div class="bg-red-500 p-3 rounded-xl mr-4">📸</div>
                     <div class="text-left">
                         <span class="block font-bold text-red-700">Scanner Fientes</span>
-                        <span class="text-xs text-red-500">Diagnostic IA immédiat</span>
+                        <span class="text-xs text-red-500">Diagnostic Santé IA</span>
                     </div>
                 </div>
-                <span class="text-red-300">➜</span>
             </button>
 
-            <button onclick="handleScan('carnet')" class="flex items-center justify-between bg-blue-50 p-4 rounded-2xl border-2 border-blue-100 active:scale-95 transition-all">
+            <button onclick="triggerCamera('carnet')" class="flex items-center justify-between bg-blue-50 p-5 rounded-2xl border-2 border-blue-100 active:scale-95 transition-all">
                 <div class="flex items-center">
-                    <div class="bg-blue-600 p-3 rounded-xl mr-4 shadow-lg">📝</div>
+                    <div class="bg-blue-600 p-3 rounded-xl mr-4">📝</div>
                     <div class="text-left">
                         <span class="block font-bold text-blue-700">Scanner Carnet</span>
-                        <span class="text-xs text-blue-500">Extraction de données</span>
+                        <span class="text-xs text-blue-500">Extraire les Chiffres</span>
                     </div>
                 </div>
-                <span class="text-blue-300">➜</span>
             </button>
         </div>
-    </div>
 
-    <div class="max-w-md mx-auto glass rounded-3xl p-6 shadow-xl text-center">
-        <p class="text-sm text-slate-400 mb-2 font-medium uppercase tracking-widest">Aperçu Finance</p>
-        <div class="text-3xl font-bold text-slate-800 tracking-tight">Analyse en cours...</div>
-        <p class="text-xs text-slate-400 mt-2">Enregistrez un carnet pour voir les revenus.</p>
+        <div id="loading" class="mt-6 text-center text-blue-600 font-bold animate-pulse">
+            L'IA analyse votre photo...
+        </div>
+        <div id="result" class="mt-6 p-4 bg-slate-100 rounded-xl hidden text-sm overflow-auto max-h-60">
+            </div>
     </div>
 
     <script>
-        function handleScan(type) {
-            alert("Connexion à Gemini en cours pour le scan " + type + "...");
-            // C'est ici que nous connecterons la caméra à l'étape suivante !
+        let currentType = '';
+
+        function triggerCamera(type) {
+            currentType = type;
+            document.getElementById('cameraInput').click();
+        }
+
+        async function processImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('status').innerText = "Analyse en cours...";
+
+            // Conversion de l'image en Base64 pour Gemini
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64Image = reader.result.split(',')[1];
+                
+                // Ici on appellera l'API de ton projet
+                // Pour l'instant on simule la réponse pour tester l'interface
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('result').classList.remove('hidden');
+                    document.getElementById('status').innerText = "Analyse terminée";
+                    document.getElementById('result').innerHTML = `
+                        <div class="font-bold text-green-700">Rapport ${currentType.toUpperCase()} :</div>
+                        <p class="mt-2 text-slate-600">Photo reçue ! Une fois l'API connectée, les chiffres ou le diagnostic s'afficheront ici en temps réel.</p>
+                    `;
+                }, 2000);
+            };
         }
     </script>
 </body>
