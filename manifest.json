@@ -1,0 +1,15 @@
+{
+  "name": "AvianScan Pro",
+  "short_name": "AvianScan",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2822/2822699.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
