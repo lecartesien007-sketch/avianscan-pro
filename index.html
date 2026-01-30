@@ -8,7 +8,9 @@
     <style>
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
         body { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); min-height: 100vh; }
-        #loading { display: none; }
+        .prose { line-height: 1.6; color: #334155; }
+        .prose table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .prose th, .prose td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
     </style>
 </head>
 <body class="p-4 text-slate-800">
@@ -16,42 +18,44 @@
     <div class="max-w-md mx-auto mb-6 flex justify-between items-center text-white">
         <div>
             <h1 class="text-2xl font-bold">AvianScan Pro 🐔</h1>
-            <p id="status" class="text-blue-400 text-sm">Prêt pour analyse</p>
+            <p id="status" class="text-blue-400 text-sm italic">Système IA Connecté</p>
         </div>
     </div>
 
-    <div class="max-w-md mx-auto glass rounded-3xl p-6 shadow-2xl mb-6">
-        <h2 class="text-lg font-semibold mb-4 border-b pb-2 text-slate-500">Scanner de Terrain</h2>
-        
+    <div class="max-w-md mx-auto glass rounded-3xl p-6 shadow-2xl mb-6 border border-white/20">
         <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="processImage(event)">
 
         <div class="grid grid-cols-1 gap-4">
-            <button onclick="triggerCamera('santé')" class="flex items-center justify-between bg-red-50 p-5 rounded-2xl border-2 border-red-100 active:scale-95 transition-all">
+            <button onclick="triggerCamera('santé')" class="flex items-center justify-between bg-red-50 p-5 rounded-2xl border-2 border-red-100 active:scale-95 transition-all shadow-sm">
                 <div class="flex items-center">
-                    <div class="bg-red-500 p-3 rounded-xl mr-4">📸</div>
+                    <div class="bg-red-500 p-3 rounded-xl mr-4 shadow-lg text-white">📸</div>
                     <div class="text-left">
                         <span class="block font-bold text-red-700">Scanner Fientes</span>
-                        <span class="text-xs text-red-500">Diagnostic Santé IA</span>
+                        <span class="text-xs text-red-500 italic">Diagnostic Santé IA</span>
                     </div>
                 </div>
             </button>
 
-            <button onclick="triggerCamera('carnet')" class="flex items-center justify-between bg-blue-50 p-5 rounded-2xl border-2 border-blue-100 active:scale-95 transition-all">
+            <button onclick="triggerCamera('carnet')" class="flex items-center justify-between bg-blue-50 p-5 rounded-2xl border-2 border-blue-100 active:scale-95 transition-all shadow-sm">
                 <div class="flex items-center">
-                    <div class="bg-blue-600 p-3 rounded-xl mr-4">📝</div>
+                    <div class="bg-blue-600 p-3 rounded-xl mr-4 shadow-lg text-white">📝</div>
                     <div class="text-left">
                         <span class="block font-bold text-blue-700">Scanner Carnet</span>
-                        <span class="text-xs text-blue-500">Extraire les Chiffres</span>
+                        <span class="text-xs text-blue-500 italic">Extraction & Finance</span>
                     </div>
                 </div>
             </button>
         </div>
 
-        <div id="loading" class="mt-6 text-center text-blue-600 font-bold animate-pulse">
-            L'IA analyse votre photo...
+        <div id="loading" class="mt-8 hidden text-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mb-2"></div>
+            <p class="text-blue-600 font-bold">L'IA analyse les données...</p>
         </div>
-        <div id="result" class="mt-6 p-4 bg-slate-100 rounded-xl hidden text-sm overflow-auto max-h-60">
-            </div>
+
+        <div id="resultContainer" class="mt-8 p-4 bg-white rounded-2xl shadow-inner hidden border border-slate-100">
+            <div id="resultContent" class="prose text-sm"></div>
+            <button onclick="location.reload()" class="mt-4 w-full py-2 text-slate-400 text-xs font-semibold uppercase tracking-widest border-t">Effacer / Nouveau Scan</button>
+        </div>
     </div>
 
     <script>
@@ -66,27 +70,38 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('result').classList.add('hidden');
-            document.getElementById('status').innerText = "Analyse en cours...";
+            const loading = document.getElementById('loading');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultContent = document.getElementById('resultContent');
+            const status = document.getElementById('status');
 
-            // Conversion de l'image en Base64 pour Gemini
+            loading.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            status.innerText = "Traitement en cours...";
+
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async () => {
                 const base64Image = reader.result.split(',')[1];
                 
-                // Ici on appellera l'API de ton projet
-                // Pour l'instant on simule la réponse pour tester l'interface
-                setTimeout(() => {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('result').classList.remove('hidden');
-                    document.getElementById('status').innerText = "Analyse terminée";
-                    document.getElementById('result').innerHTML = `
-                        <div class="font-bold text-green-700">Rapport ${currentType.toUpperCase()} :</div>
-                        <p class="mt-2 text-slate-600">Photo reçue ! Une fois l'API connectée, les chiffres ou le diagnostic s'afficheront ici en temps réel.</p>
-                    `;
-                }, 2000);
+                try {
+                    const response = await fetch('/api/analyze', {
+                        method: 'POST',
+                        body: JSON.stringify({ image: base64Image, type: currentType })
+                    });
+                    const data = await response.json();
+                    
+                    loading.classList.add('hidden');
+                    resultContainer.classList.remove('hidden');
+                    status.innerText = "Analyse terminée";
+                    
+                    // Transformation simple du texte (Markdown sommaire) en HTML
+                    resultContent.innerHTML = data.result.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                } catch (error) {
+                    alert("Erreur réseau ou clé API. Vérifie tes Settings sur Vercel.");
+                    loading.classList.add('hidden');
+                    status.innerText = "Erreur";
+                }
             };
         }
     </script>
