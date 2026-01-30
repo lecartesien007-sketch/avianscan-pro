@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AvianScan Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        body { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); min-height: 100vh; }
+    </style>
+</head>
+<body class="p-4 text-slate-800">
+
+    <div class="max-w-md mx-auto mb-6 flex justify-between items-center text-white">
+        <div>
+            <h1 class="text-2xl font-bold">AvianScan Pro 🐔</h1>
+            <p class="text-blue-400 text-sm">Mode Expert Connecté</p>
+        </div>
+        <div class="text-right">
+            <span class="bg-green-500 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Santé: OK</span>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto glass rounded-3xl p-6 shadow-2xl mb-6">
+        <h2 class="text-lg font-semibold mb-4 border-b pb-2 text-slate-500">Actions Rapides</h2>
+        
+        <div class="grid grid-cols-1 gap-4">
+            <button onclick="handleScan('santé')" class="flex items-center justify-between bg-red-50 p-4 rounded-2xl border-2 border-red-100 active:scale-95 transition-all">
+                <div class="flex items-center">
+                    <div class="bg-red-500 p-3 rounded-xl mr-4 shadow-lg">📸</div>
+                    <div class="text-left">
+                        <span class="block font-bold text-red-700">Scanner Fientes</span>
+                        <span class="text-xs text-red-500">Diagnostic IA immédiat</span>
+                    </div>
+                </div>
+                <span class="text-red-300">➜</span>
+            </button>
+
+            <button onclick="handleScan('carnet')" class="flex items-center justify-between bg-blue-50 p-4 rounded-2xl border-2 border-blue-100 active:scale-95 transition-all">
+                <div class="flex items-center">
+                    <div class="bg-blue-600 p-3 rounded-xl mr-4 shadow-lg">📝</div>
+                    <div class="text-left">
+                        <span class="block font-bold text-blue-700">Scanner Carnet</span>
+                        <span class="text-xs text-blue-500">Extraction de données</span>
+                    </div>
+                </div>
+                <span class="text-blue-300">➜</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto glass rounded-3xl p-6 shadow-xl text-center">
+        <p class="text-sm text-slate-400 mb-2 font-medium uppercase tracking-widest">Aperçu Finance</p>
+        <div class="text-3xl font-bold text-slate-800 tracking-tight">Analyse en cours...</div>
+        <p class="text-xs text-slate-400 mt-2">Enregistrez un carnet pour voir les revenus.</p>
+    </div>
+
+    <script>
+        function handleScan(type) {
+            alert("Connexion à Gemini en cours pour le scan " + type + "...");
+            // C'est ici que nous connecterons la caméra à l'étape suivante !
+        }
+    </script>
+</body>
+</html>
